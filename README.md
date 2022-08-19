@@ -27,3 +27,6 @@ terraform init
 terraform apply -auto-approve
 ```
 
+Once done the cluster should be available and ready to load sample data.
+
+<img src="opensearch-dashboard.png" width=600/>
