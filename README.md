@@ -9,8 +9,8 @@ touch .auto.tfvars
 Prepare the variables:
 
 ```hcl
-region = "sa-east-1"
-user   = "Evandro"
+region      = "sa-east-1"
+master_user = "Evandro"
 ```
 
 Create the infrastructure:

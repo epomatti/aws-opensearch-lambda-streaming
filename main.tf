@@ -6,7 +6,7 @@ variable "region" {
   type = string
 }
 
-variable "user" {
+variable "master_user" {
   type = string
 }
 
@@ -15,9 +15,9 @@ variable "user" {
 data "aws_caller_identity" "current" {}
 
 locals {
-  region     = var.region
-  account_id = data.aws_caller_identity.current.account_id
-  user       = var.user
+  region      = var.region
+  account_id  = data.aws_caller_identity.current.account_id
+  master_user = var.master_user
 }
 
 ### S3 ###
@@ -70,21 +70,10 @@ resource "aws_opensearch_domain" "main" {
     volume_type = "gp3"
   }
 
-  access_policies = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "es:*",
-        ],
-        Principal = {
-          AWS = [
-            "arn:aws:iam::${local.account_id}:user/${local.user}"
-          ]
-        },
-        Effect   = "Allow"
-        Resource = "arn:aws:es:${local.region}:${local.account_id}:domain/opensearch-main/*"
-      },
-    ]
-  })
+  advanced_security_options {
+    enabled = true
+    master_user_options {
+      master_user_arn = "arn:aws:iam::${local.account_id}:user/${local.master_user}"
+    }
+  }
 }
