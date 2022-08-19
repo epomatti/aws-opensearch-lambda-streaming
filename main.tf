@@ -6,8 +6,13 @@ variable "region" {
   type = string
 }
 
-variable "master_user" {
+variable "master_user_name" {
   type = string
+}
+
+variable "master_user_password" {
+  type      = string
+  sensitive = true
 }
 
 ### Locals ###
@@ -15,9 +20,10 @@ variable "master_user" {
 data "aws_caller_identity" "current" {}
 
 locals {
-  region      = var.region
-  account_id  = data.aws_caller_identity.current.account_id
-  master_user = var.master_user
+  region               = var.region
+  account_id           = data.aws_caller_identity.current.account_id
+  master_user_name     = var.master_user_name
+  master_user_password = var.master_user_password
 }
 
 ### S3 ###
@@ -46,13 +52,6 @@ resource "aws_s3_bucket_public_access_block" "main" {
   restrict_public_buckets = true
 }
 
-resource "aws_s3_object" "movies" {
-  bucket         = aws_s3_bucket.main.bucket
-  key            = "bulk_movies.json"
-  content_base64 = filebase64("${path.module}/bulk_movies.json")
-  content_type   = "application/json"
-}
-
 ### OpenSearch ###
 
 resource "aws_opensearch_domain" "main" {
@@ -68,12 +67,15 @@ resource "aws_opensearch_domain" "main" {
     ebs_enabled = true
     volume_size = 100
     volume_type = "gp3"
+    iops        = 3000
   }
 
   advanced_security_options {
-    enabled = true
+    enabled                        = true
+    internal_user_database_enabled = true
     master_user_options {
-      master_user_arn = "arn:aws:iam::${local.account_id}:user/${local.master_user}"
+      master_user_name     = local.master_user_name
+      master_user_password = local.master_user_password
     }
   }
 
@@ -89,5 +91,6 @@ resource "aws_opensearch_domain" "main" {
     enforce_https       = true
     tls_security_policy = "Policy-Min-TLS-1-2-2019-07"
   }
+
 }
 
