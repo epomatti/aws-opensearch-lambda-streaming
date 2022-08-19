@@ -55,12 +55,8 @@ resource "aws_opensearch_domain" "main" {
     volume_size = 100
     volume_type = "gp3"
   }
-}
 
-resource "aws_opensearch_domain_policy" "main" {
-  domain_name = aws_opensearch_domain.main.domain_name
-
-  access_policies = <<POLICIES
+  access_policies = <<CONFIG
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -68,9 +64,31 @@ resource "aws_opensearch_domain_policy" "main" {
             "Action": "es:*",
             "Principal": "*",
             "Effect": "Allow",
-            "Resource": "${aws_opensearch_domain.main.arn}/*"
+            "Resource": "*"
         }
     ]
 }
-POLICIES
+CONFIG
 }
+
+data "aws_region" "current" {}
+
+data "aws_caller_identity" "current" {}
+
+# resource "aws_opensearch_domain_policy" "main" {
+#   domain_name = aws_opensearch_domain.main.domain_name
+
+#   access_policies = <<POLICIES
+# {
+#     "Version": "2012-10-17",
+#     "Statement": [
+#         {
+#             "Action": "es:*",
+#             "Principal": "*",
+#             "Effect": "Allow",
+#             "Resource": "${aws_opensearch_domain.main.arn}/*"
+#         }
+#     ]
+# }
+# POLICIES
+# }
