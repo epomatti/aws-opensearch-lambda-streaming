@@ -91,6 +91,4 @@ resource "aws_opensearch_domain" "main" {
     enforce_https       = true
     tls_security_policy = "Policy-Min-TLS-1-2-2019-07"
   }
-
 }
-
