@@ -1,5 +1,18 @@
 # aws-opensearch
 
+Create the variables file:
+
+```sh
+touch .auto.tfvars
+```
+
+Prepare the variables:
+
+```hcl
+region = "sa-east-1"
+user   = "Evandro"
+```
+
 Create the infrastructure:
 
 ```sh

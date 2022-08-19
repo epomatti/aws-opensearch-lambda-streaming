@@ -2,8 +2,22 @@ provider "aws" {
   region = local.region
 }
 
+variable "region" {
+  type = string
+}
+
+variable "user" {
+  type = string
+}
+
+### Locals ###
+
+data "aws_caller_identity" "current" {}
+
 locals {
-  region = "sa-east-1"
+  region     = var.region
+  account_id = data.aws_caller_identity.current.account_id
+  user       = var.user
 }
 
 ### S3 ###
@@ -42,7 +56,7 @@ resource "aws_s3_object" "movies" {
 ### OpenSearch ###
 
 resource "aws_opensearch_domain" "main" {
-  domain_name           = "opensearch-main"
+  domain_name    = "opensearch-main"
   engine_version = "OpenSearch_1.3"
 
   cluster_config {
@@ -56,39 +70,21 @@ resource "aws_opensearch_domain" "main" {
     volume_type = "gp3"
   }
 
-  access_policies = <<CONFIG
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": "es:*",
-            "Principal": "*",
-            "Effect": "Allow",
-            "Resource": "*"
-        }
+  access_policies = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "es:*",
+        ],
+        Principal = {
+          AWS = [
+            "arn:aws:iam::${local.account_id}:user/${local.user}"
+          ]
+        },
+        Effect   = "Allow"
+        Resource = "arn:aws:es:${local.region}:${local.account_id}:domain/opensearch-main/*"
+      },
     ]
+  })
 }
-CONFIG
-}
-
-data "aws_region" "current" {}
-
-data "aws_caller_identity" "current" {}
-
-# resource "aws_opensearch_domain_policy" "main" {
-#   domain_name = aws_opensearch_domain.main.domain_name
-
-#   access_policies = <<POLICIES
-# {
-#     "Version": "2012-10-17",
-#     "Statement": [
-#         {
-#             "Action": "es:*",
-#             "Principal": "*",
-#             "Effect": "Allow",
-#             "Resource": "${aws_opensearch_domain.main.arn}/*"
-#         }
-#     ]
-# }
-# POLICIES
-# }
