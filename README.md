@@ -75,7 +75,7 @@ Now upload file [sample.log](s3-to-opensearch/sample.log) to S3 in the `logs` fo
 
 ---
 
-### Clean-u;
+### Clean-up
 
 Delete the Lambda function.
 
