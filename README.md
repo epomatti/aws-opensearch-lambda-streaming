@@ -64,11 +64,19 @@ Create the Lambda function:
 5. Suffix: `.log`
 6. Acknowledge recursive invocation and add it
 
-Also add the variables `AWS_REGION` and `OPENSEARCH_HOST` that are used by the Python script.
+Also add the environment variables `AWS_REGION` and `OPENSEARCH_HOST` that are used by the Python script.
 
 Finally, you can upload your deployment package:
 
 1. Choose Upload from and .zip file, then follow the prompts to upload your deployment package.
 2. After the upload finishes, edit the Runtime settings and change the Handler to sample.handler. This setting tells Lambda the file (sample.py) and method (handler) that it should run after a trigger.
 
-Now upload file [sample.log] to S3.
+Now upload file [sample.log](s3-to-opensearch/sample.log) to S3 in the `logs` folder..
+
+---
+
+### Clean-u;
+
+Delete the Lambda function.
+
+Run `terraform destroy -auto-approve`
